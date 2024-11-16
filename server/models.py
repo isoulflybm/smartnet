@@ -31,6 +31,7 @@ class Firewall(models.Model):
     id = models.AutoField(primary_key = True)
     name = models.CharField(max_length = 256)
     description = models.CharField(max_length = 32768)
+    ip = models.CharField(max_length = 256)
     tarif = models.ForeignKey(Tarif, on_delete = models.CASCADE, default = False)
 
 class IpType(models.TextChoices):
@@ -51,7 +52,40 @@ class FirewallRestriction(models.Model):
     firewall = models.ForeignKey(Firewall, on_delete = models.CASCADE, default = False)
     ip_type = models.CharField(max_length = 256, choices = IpType.choices, default = IpType.IP)
     ip_area = models.CharField(max_length = 1024, choices = IpArea.choices, default = IpArea.IP4)
-    ip = models.CharField(max_length = 256)
+    ip_destination = models.CharField(max_length = 256)
+
+class FirewallRoute(models.Model):
+    def __str__(self):
+        return str(self.name)
+
+    id = models.AutoField(primary_key = True)
+    firewall = models.ForeignKey(Firewall, on_delete = models.CASCADE, default = False)
+    ip_type = models.CharField(max_length = 256, choices = IpType.choices, default = IpType.IP)
+    ip_area = models.CharField(max_length = 1024, choices = IpArea.choices, default = IpArea.IP4)
+    ip_destination = models.CharField(max_length = 256)
+
+class Phone(models.Model):
+    def __str__(self):
+        return str(self.name)
+
+    id = models.AutoField(primary_key = True)
+    name = models.CharField(max_length = 256)
+    description = models.CharField(max_length = 32768)
+    number = models.CharField(max_length = 256)
+    tarif = models.ForeignKey(Tarif, on_delete = models.CASCADE, default = False)
+
+class NumberType(models.TextChoices):
+    Number = 'NUMBER', 'number'
+    Area = 'AREA', 'area'
+
+class TarifRule(models.Model):
+    def __str__(self):
+        return str(self.name)
+
+    id = models.AutoField(primary_key = True)
+    phone = models.ForeignKey(Phone, on_delete = models.CASCADE, default = False)
+    number_type = models.CharField(max_length = 256, choices = NumberType.choices, default = NumberType.Number)
+    number_destination = models.CharField(max_length = 256)
 
 class User(models.Model):
     def __str__(self):
