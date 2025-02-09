@@ -1,4 +1,6 @@
 from django.db import models
+from ip import ip
+from helpers.ip.ip4.firewall import ip4firewall
 
 # Create your models here.
 
@@ -56,13 +58,35 @@ class FirewallRestriction(models.Model):
 
 class FirewallRoute(models.Model):
     def __str__(self):
-        return str(self.name)
+        return str(self.ip_area)
+
+    def save(self):
+        ip4firewall.edit()
 
     id = models.AutoField(primary_key = True)
     firewall = models.ForeignKey(Firewall, on_delete = models.CASCADE, default = False)
     ip_type = models.CharField(max_length = 256, choices = IpType.choices, default = IpType.IP)
     ip_area = models.CharField(max_length = 1024, choices = IpArea.choices, default = IpArea.IP4)
     ip_destination = models.CharField(max_length = 256)
+    ip_gateway = models.CharField(max_length = 256)
+
+class FirewallTrafficControl(models.Model):
+    def __str__(self):
+        return str(self.ip_area)
+
+    id = models.AutoField(primary_key = True)
+    firewall_route = models.ForeignKey(FirewallRoute, on_delete = models.CASCADE, default = False)
+    ip_type = models.CharField(max_length = 256, choices = IpType.choices, default = IpType.IP)
+    ip_area = models.CharField(max_length = 1024, choices = IpArea.choices, default = IpArea.IP4)
+    traffic = models.IntegerField()
+
+class FirewallTraffic(models.Model):
+    def __str__(self):
+        return str(self.firewall_route)
+
+    id = models.AutoField(primary_key = True)
+    firewall_route = models.ForeignKey(FirewallRoute, on_delete = models.CASCADE, default = False)
+    traffic = models.IntegerField()
 
 class Phone(models.Model):
     def __str__(self):
@@ -80,12 +104,20 @@ class NumberType(models.TextChoices):
 
 class TarifRule(models.Model):
     def __str__(self):
-        return str(self.name)
+        return str(self.phone)
 
     id = models.AutoField(primary_key = True)
     phone = models.ForeignKey(Phone, on_delete = models.CASCADE, default = False)
     number_type = models.CharField(max_length = 256, choices = NumberType.choices, default = NumberType.Number)
     number_destination = models.CharField(max_length = 256)
+
+class PhoneTraffic(models.Model):
+    def __str__(self):
+        return str(self.name)
+
+    id = models.AutoField(primary_key = True)
+    phone = models.ForeignKey(Phone, on_delete = models.CASCADE, default = False)
+    time = models.IntegerField()
 
 class User(models.Model):
     def __str__(self):
@@ -97,3 +129,4 @@ class User(models.Model):
     phone = models.CharField(max_length = 32)
     password = models.CharField(max_length = 128)
     tarif = models.ForeignKey(Tarif, on_delete = models.CASCADE, default = False)
+

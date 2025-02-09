@@ -19,9 +19,14 @@ from django.urls import path, include
 
 from client import client
 from server import server
+from ip import models
+
+admin.site.site_header = "SmartNET Admin"
+admin.site.site_title = "SmartNET Admin Portal"
+admin.site.index_title = "Welcome to SmartNET Admin Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(client.urls)),
-    path('server', include(server.urls)),
+    path('server/', include(server.urls)),
 ]
